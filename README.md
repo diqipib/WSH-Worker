@@ -1,11 +1,10 @@
 # WSH-Worker
-Sample of using wsh workers
 
-- config.js                     - Configuration file
-- generate.cmd			            - Batch script for running main script
-- generate.wsf			            - Main script
-- processor.wsf			            - Worker script for generating images in frames
-- includes\general.js		        - Script with common functions used in generate.wsf and processor.wsf
-- includes\shell.connector.wsc  - Windows script object for passing data between processes
-- includes\worker.js		        - Workers factory script.
-- includes\worker.core.js		    - Worker core script.
+- __config.js__                     - Configuration file
+- __generate.cmd__			            - Batch script for running main script
+- __generate.wsf__			            - Main script
+- __processor.wsf__			            - Worker script for generating images in frames
+- __includes\general.js__		        - Script with common functions used in generate.wsf and processor.wsf
+- __includes\shell.connector.wsc__  - Windows script object for passing data between processes
+- __includes\worker.js__		        - Workers factory script.
+- __includes\worker.core.js__		    - Worker core script.
