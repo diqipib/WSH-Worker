@@ -1,0 +1,100 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<component>
+	<?component error="true" debug="false"?>
+	<registration
+		description	= "shell.connector"
+		progid		= "shell.connector.wsc"
+		version		= "1.0">
+	</registration>
+	<public>
+		<!-- Property for retrieving id -->
+		<property name="id" get />
+		<!-- Property for attaching new event handler -->
+		<property name="onmessage" put >
+			<parameter name="object"/>
+		</property>
+		<!-- Checking if connector with specified id exists -->
+		<method name="connect">
+			<parameter name="id"/>
+		</method>
+		<!-- Method for sending message -->
+		<method name="postMessage">
+			<parameter name="id"/>
+			<parameter name="data"/>
+		</method>
+	</public>
+	<script language="JScript">
+	<![CDATA[
+
+	// Variables for caching data
+	var	window,	
+		id = (function(){
+				return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+					var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+					return v.toString(16);
+				});
+			})(),	
+		onmessage = function(){},
+		document = new ActiveXObject('htmlfile'),
+		script = document.Script; 
+
+	// Search for a window with a property containing Shell.Explorer. The property is selected by the hWnd of the window
+	for(var item, e = new Enumerator(new ActiveXObject('Shell.Application').Windows());!e.atEnd();e.moveNext()){
+		item = e.item(); 
+		if(item.getProperty(item.hWnd) == 'Shell.Connector') {
+			// Saving the link
+			window = item;
+			break
+		}
+	}
+	
+	// If the window is not found a new one is created
+	if(!window){
+		// Creating new window
+		window = GetObject('new:{C08AFD90-F2A1-11D1-8455-00A0C91F3880}');
+		window.putProperty(window.hWnd,'Shell.Connector');
+	}
+	
+	// Registering a callback function for connector
+	window.putProperty(id, function(connectorId, data){
+		script.setTimeout(function(){
+			try{
+				onmessage(connectorId, data);
+			}catch(e){}
+		},0);
+	});
+	
+	// The function returns the current connector id
+	function get_id(){
+		return id
+	}
+	
+	// Function to connect a reference to the callback object
+	function put_onmessage(object){
+		// "Incapsulation" hides JS context in function
+		onmessage = function(id,data){
+			object(id,data);
+		}
+	}
+	// Function to check the connection with the specified connector
+	function connect(connectorId){
+		try {
+			// Check if object has prototype property
+			window.getProperty(connectorId).prototype;
+			return true
+		} catch(e){}
+		return false
+	}
+	
+	// Function for sending messages between connectors
+	function postMessage(connectorId, data){
+		try {
+			// Calling function object stored in property
+			window.getProperty(connectorId)(get_id(),data);
+			return true
+		} catch(e){}
+		return false
+	}
+	]]>
+	</script>
+</component>

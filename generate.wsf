@@ -1,0 +1,238 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<job>
+	<reference object="WIA.ImageProcess"/>
+	<script language="JScript" src="config.js"/>
+	<script language="JScript" src="includes\general.js"/>
+	<script language="JScript" src="includes\worker.js">
+	<![CDATA[
+		// Flag for searching only files
+	var SHCONTF_NONFOLDERS = 0x00040,
+		// Flag for managing main loop
+		wait = true,
+		// Shell object for filtering images in folder
+		shell = new ActiveXObject('Shell.Application'),
+		// Object for operations with file system
+		fso = new ActiveXObject('Scripting.FileSystemObject'),
+		// Images filtered in gallery
+		folderItems = shell.NameSpace(fso.getAbsolutePathName(config.galleryFolderPath)).Items(),
+		// Counter for taking next image from folder items
+		pictureIndex = 0,
+		// Counter for images already processed
+		imagesProcessed = 0,
+		// Saving start time
+		startTime = new Date();
+
+	// Function for formating timespan
+	function formatTimeSpan(ms){
+		var d = new Date(ms)
+		return [
+			f(d.getUTCHours()),
+			f(d.getUTCMinutes()),
+			f(d.getUTCSeconds())
+		].join(':') + '.' + ('00' + d.getMilliseconds()).slice(-3);
+		
+		function f(v){
+			return v < 10 ? '0' + v:String(v) 
+		}
+	}
+
+	// function for printing text with time span
+	function echo(text){
+		WSH.StdOut.WriteLine('[' + formatTimeSpan(new Date() - startTime) + '] ' + text);
+	}
+
+	// Filtering gallery folder
+	folderItems.Filter(SHCONTF_NONFOLDERS,config.imagesFormats);
+
+	// Algorithm of spreading pictures on the wall is taken here https://coderoad.ru/6190019/%D0%A0%D0%B0%D0%B7%D0%B1%D0%B8%D1%82%D1%8C-%D0%BF%D1%80%D1%8F%D0%BC%D0%BE%D1%83%D0%B3%D0%BE%D0%BB%D1%8C%D0%BD%D0%B8%D0%BA-%D0%BD%D0%B0-%D0%BF%D1%80%D1%8F%D0%BC%D0%BE%D1%83%D0%B3%D0%BE%D0%BB%D1%8C%D0%BD%D0%B8%D0%BA%D0%B8-%D0%BE%D0%B4%D0%B8%D0%BD%D0%B0%D0%BA%D0%BE%D0%B2%D0%BE%D0%B3%D0%BE-%D1%80%D0%B0%D0%B7%D0%BC%D0%B5%D1%80%D0%B0
+	// nColumns = ceil(sqrt(n)) 
+	// nRows = ceil(n / (double)numColumns)
+
+	// Wall image ratio
+	var	ratio = config.wall.width / config.wall.height,
+		// Rect size 
+		rectSide = Math.sqrt(folderItems.Count),
+		// Blocks per X
+		blocksPerX = Math.ceil(rectSide),
+		// Blocks per Y
+		blocksPerY = Math.ceil(folderItems.Count / rectSide),
+		// Block width
+		blockWidth = config.wall.width / blocksPerX, 
+		// Block height
+		blockHeight = config.wall.height / blocksPerY, 
+		// WIA image for loading background
+		wallImage = new ActiveXObject('WIA.ImageFile'),
+		// WIA image processor
+		imageProcess = new ActiveXObject('WIA.ImageProcess');
+
+	// debug info
+	/*
+	echo('Wall size:\t' + config.wallWidth + 'x' + config.wallHeight);
+	echo('Pictures count:\t' + folderItems.Count);
+	echo('Ratio:\t\t' + ratio);
+	echo('Rect side:\t' + rectSide);
+	echo('Blocks per X:\t' + blocksPerX);
+	echo('Blocks per Y:\t' + blocksPerY);
+	echo('Block width:\t' + blockWidth);
+	echo('block height:\t' + blockHeight);
+	echo('Wall width:\t' + blocksPerX * blockWidth);
+	echo('Wall height:\t' + blocksPerY * blockHeight);
+	*/
+
+	// Loading background image
+	var fileName = getRandomItem(config.wall.images);
+	if(!fso.FileExists(fileName)) throw new Error('Failed to load wall image "' + fileName + '"');
+
+	wallImage.LoadFile(fileName)
+
+	// Adding filter for scaling image to destination size of wall width x wall height
+	with(addFilter(imageProcess,"Scale")){
+		Properties("MaximumWidth")	= config.wall.width;
+		Properties("MaximumHeight")	= config.wall.height;
+		Properties("PreserveAspectRatio") = false;			
+	}
+
+	// Adding filters for inserting image tiles on the wall
+	for(y = 0; y < config.wall.height / wallImage.Height;y++){
+		for(x = 0; x < config.wall.width / wallImage.Width;x++){
+			// Stamping scaled image on background image. Result is saved back to image
+			with(addFilter(imageProcess,"Stamp")){
+				Properties("ImageFile") = wallImage;
+				Properties("Left") = x * wallImage.Width
+				Properties("Top") = y * wallImage.Height				
+			}				
+		}
+	}
+
+	// Applying filters to create background image
+	wallImage = imageProcess.Apply(wallImage);
+
+	// Function for adding filters
+	function addFilter(imageProcess,filterName){
+		imageProcess.Filters.Add(imageProcess.FilterInfos(filterName).FilterID);
+		return imageProcess.Filters(imageProcess.Filters.Count)
+	}
+
+	// Cycle for creating workers
+	for(var i=1;i <= config.workersCount;i++){
+		(function(id){
+			// Creating worker
+			var worker = new Worker('processor.wsf'), timeout;
+			echo('Created worker ' + id);
+			// Attaching event for callback messages
+			worker.onmessage = function(data){
+				if(data.status == 1){
+						// Calculating coordinates
+					var x = data.index % blocksPerX,
+						y = (data.index - x) / blocksPerX,
+						// Creating new vector
+						vector = new ActiveXObject('WIA.Vector');
+
+					echo('Image "' + fso.GetFileName(data.filePath) + '" processed');
+					
+					// Building image from passed data. 
+					vector.BinaryData = encoder.decode('bin.base64',data.binaryData);
+					var pictureImage = vector.imageFile(data.width, data.height);
+					
+					// Creating another one image processor
+					var imageProcess = new ActiveXObject('WIA.ImageProcess')
+
+					// Scaling image to fit frame size
+					with(addFilter(imageProcess,"Scale")){
+						Properties("MaximumWidth")			= blockWidth;
+						Properties("MaximumHeight")			= blockHeight;
+						Properties("PreserveAspectRatio")	= true;			
+						pictureImage = imageProcess.Apply(pictureImage);
+					}					
+					
+					// Removing scaling filter
+					imageProcess.Filters.Remove(1);
+					
+					// Adding filter for stamping images
+					with(addFilter(imageProcess,"Stamp")){
+						Properties("ImageFile") = pictureImage;
+						Properties("Left")	=  x * blockWidth + (blockWidth - pictureImage.width) / 2;
+						Properties("Top")	=  y * blockHeight;	
+					}
+					
+					// Stamping picture on the wall
+					wallImage = imageProcess.Apply(wallImage);
+
+					// Increasing the counter
+					imagesProcessed++
+					
+					// Checking if the full job is done
+					if(imagesProcessed >= folderItems.Count) {
+						wait = false;
+						return
+					}
+				}
+				// Receiving next task
+				if(pictureIndex < folderItems.Count) {
+					var filePath = folderItems.Item(pictureIndex).Path
+					echo('Worker ' + id + ' start processing file "' + fso.GetFileName(filePath) + '"');
+					worker.postMessage({
+						filePath:filePath,
+						index:pictureIndex
+					});
+					pictureIndex++
+				} else {
+					// If no more tasks - terminating worker
+					echo('No more tasks. Stopping worker ' + id);
+					worker.terminate();
+				}
+			}
+			// Attaching worker termination event handler
+			worker.onterminate = function(code){
+				if(code == 0){
+					echo('Worker ' + id + ' stopped. No more tasks');
+				} else {
+					echo('(!) Worker ' + id + ' terminated with code ' + code);
+					WSH.Quit();
+				}
+			}
+		})(i);
+	}
+
+	// Main loop
+	while(wait){
+		WSH.Sleep(100);
+	}	
+
+	// Reinicializing image process
+	imageProcess = new ActiveXObject('WIA.ImageProcess');
+	// Loading shadow image
+	var shadowImage = new ActiveXObject('WIA.ImageFile');
+		shadowPaddingX = config.wall.width / 3,
+		shadowPaddingY = config.wall.height / 3;
+		
+	if(!fso.FileExists(config.shadowImage)) throw new Error('Failed to load shadow image "' + config.shadowImage + '"');
+	shadowImage.LoadFile(config.shadowImage);
+	// Adding filter for scaling image to destination size of wall width x wall height
+
+	with(addFilter(imageProcess,"Scale")){
+		Properties("MaximumWidth")	= config.wall.width - shadowPaddingX;
+		Properties("MaximumHeight")	= config.wall.height - shadowPaddingY;
+		Properties("PreserveAspectRatio") = false;			
+	}
+	shadowImage = imageProcess.Apply(shadowImage);
+	imageProcess.Filters.Remove(1);
+	
+	// Stamping scaled image on background image. Result is saved back to image
+	with(addFilter(imageProcess,"Stamp")){
+		Properties("ImageFile") = shadowImage;
+		Properties("Left") = shadowPaddingX
+		Properties("Top") = shadowPaddingY
+	}	
+	wallImage = imageProcess.Apply(wallImage);
+	// Saving wall image and opening it
+	var fileName = "result." + wallImage.FileExtension
+	if(fso.FileExists(fileName)) fso.DeleteFile(fileName,true);
+	wallImage.SaveFile(fileName);			
+
+	echo('Complete !');
+
+	shell.shellExecute(fileName);
+	]]>
+	</script>
+</job>
