@@ -5,6 +5,12 @@
 	<script language="JScript" src="includes\general.js"/>
 	<script language="JScript" src="includes\worker.js">
 	<![CDATA[
+	
+	// Checking if script is started not from "generate.cmd"
+	if(WScript.FullName.match(/cscript.exe/i) == null) {
+		WSH.Echo('Please, use "generate.cmd" to run script')
+		WSH.Quit();
+	}
 		// Flag for searching only files
 	var SHCONTF_NONFOLDERS = 0x00040,
 		// Flag for managing main loop

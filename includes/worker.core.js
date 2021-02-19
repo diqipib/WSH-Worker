@@ -22,7 +22,9 @@ Tasks:
 	// Checking JSON object loaded
 	if(!JSON) throw new Error('Failed to create JSON object. Document mode: ' + document.documentMode);
 	// Receiving host connector id
-	var hostConnectorId = fso.GetStandardStream(0).ReadLine();
+	try {
+		var hostConnectorId = fso.GetStandardStream(0).ReadLine();
+	} catch(e){}
 	// External method for sending message to parent process
 	connector.onmessage = function(id,data){
 		try {
