@@ -1,6 +1,6 @@
 var config = {
 	// Workers count
-	workersCount: 5,
+	workersCount: 4,
 	// Gallery folder path
 	galleryFolderPath:			"images",
 	// Picture formats to filter in folder
