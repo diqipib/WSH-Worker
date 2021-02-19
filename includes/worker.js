@@ -13,9 +13,10 @@ var Worker = (function(){
 		// Object for operations with file system
 		fso	= new ActiveXObject('Scripting.FileSystemObject'),
 		// Creating html document to use "setInterval" function and JSON object
-		// Setting document mode to the top available version to get setInterval function and JSON object
+		// Setting document mode to IE9 to get setInterval function and JSON object
+		// Using version higher makes trouble with using setTimeout
 		document = new ActiveXObject('htmlfile');
-		document.write('<meta http-equiv="X-UA-Compatible" content="IE=Edge">');
+		document.write('<meta http-equiv="X-UA-Compatible" content="IE=9">');
 		var window = document.parentWindow,
 			workers = {};
 	// Getting a reference to JSON object
