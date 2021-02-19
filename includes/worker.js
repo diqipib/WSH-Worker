@@ -12,11 +12,10 @@ var Worker = (function(){
 		connector = GetObject("script:file:includes\\shell.connector.wsc"),
 		// Object for operations with file system
 		fso	= new ActiveXObject('Scripting.FileSystemObject'),
-		// Creating html document 
+		// Creating html document to use "setInterval" function and JSON object
+		// Setting document mode to the top available version to get setInterval function and JSON object
 		document = new ActiveXObject('htmlfile');
-		// Setting document mode to get setInterval and JSON
-		document.write('<meta http-equiv="X-UA-Compatible" content="IE=9">');
-		// Getting reference for using function "setInterval" function
+		document.write('<meta http-equiv="X-UA-Compatible" content="IE=Edge">');
 		var window = document.parentWindow,
 			workers = {};
 	// Getting a reference to JSON object
