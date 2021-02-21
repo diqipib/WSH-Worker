@@ -3,9 +3,9 @@
 	<reference object="WIA.ImageProcess"/>
 	<script language="JScript" src="config.js"/>
 	<script language="JScript" src="includes\general.js"/>
+	<script language="JScript" src="includes\json2.js"/>
 	<script language="JScript" src="includes\worker.core.js">
 	<![CDATA[
-	'use strict';
 		// Flag for worker loop
 	var	wait = true,
 		// Object for operations with file system

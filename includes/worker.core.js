@@ -12,15 +12,14 @@ Tasks:
 		fso = new ActiveXObject('Scripting.FileSystemObject'),
 		// Creating html document to use "setInterval" function and JSON object
 		// Setting document mode to IE9 to get setInterval function and JSON object
-		// Using version higher makes trouble with using setTimeout
+		// Using version higher makes trouble with using setInterval
 		document = new ActiveXObject('htmlfile');
 		document.write('<meta http-equiv="X-UA-Compatible" content="IE=9">');
-		var window = document.parentWindow,
-			workers = {};
+		var window = document.parentWindow;
 	// Getting a reference to JSON object
-	var JSON = window.JSON;
-	// Checking JSON object loaded
-	if(!JSON) throw new Error('Failed to create JSON object. Document mode: ' + document.documentMode);
+	var JSON = window.JSON||context.JSON;
+	// Check if JSON object loaded
+	if(!JSON) throw new Error('Failed to get JSON object. Document mode: ' + document.documentMode);
 	// Receiving host connector id
 	try {
 		var hostConnectorId = fso.GetStandardStream(0).ReadLine();

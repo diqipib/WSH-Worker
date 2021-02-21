@@ -5,7 +5,7 @@ Tasks
 2) Send them messages using method "postMessage"
 3) Catches events with handler "onmessage"
 */
-var Worker = (function(){
+var Worker = (function(context){
 	// Object for running processes
 	var wshShell = new ActiveXObject('WScript.Shell'),
 		// current process connector
@@ -14,15 +14,15 @@ var Worker = (function(){
 		fso	= new ActiveXObject('Scripting.FileSystemObject'),
 		// Creating html document to use "setInterval" function and JSON object
 		// Setting document mode to IE9 to get setInterval function and JSON object
-		// Using version higher makes trouble with using setTimeout
+		// Using version higher makes trouble with using setInterval
 		document = new ActiveXObject('htmlfile');
 		document.write('<meta http-equiv="X-UA-Compatible" content="IE=9">');
 		var window = document.parentWindow,
 			workers = {};
 	// Getting a reference to JSON object
-	var JSON = window.JSON;
-	// Checking JSON object loaded
-	if(!JSON) throw new Error('Failed to create JSON object. Document mode: ' + document.documentMode);
+	var JSON = window.JSON||context.JSON;
+	// Check if JSON object loaded
+	if(!JSON) throw new Error('Failed to get JSON object. Document mode: ' + document.documentMode);
 	// Attaching event to connector
 	connector.onmessage = function(connectorId, data){
 		try {
@@ -65,4 +65,4 @@ var Worker = (function(){
 			}
 		},100);
 	}
-})();
+})(this);
