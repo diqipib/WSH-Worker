@@ -12,17 +12,12 @@ var Worker = (function(context){
 		connector = GetObject("script:file:includes\\shell.connector.wsc"),
 		// Object for operations with file system
 		fso	= new ActiveXObject('Scripting.FileSystemObject'),
-		// Creating html document to use "setInterval" function and JSON object
-		// Setting document mode to IE9 to get setInterval function and JSON object
-		// Using version higher makes trouble with using setInterval
+		// Creating html document to use "setInterval" function
 		document = new ActiveXObject('htmlfile');
-		document.write('<meta http-equiv="X-UA-Compatible" content="IE=9">');
 		var window = document.parentWindow,
 			workers = {};
-	// Getting a reference to JSON object
-	var JSON = window.JSON||context.JSON;
 	// Check if JSON object loaded
-	if(!JSON) throw new Error('Failed to get JSON object. Document mode: ' + document.documentMode);
+	if(!JSON) throw new Error('JSON object not found');
 	// Attaching event to connector
 	connector.onmessage = function(connectorId, data){
 		try {
@@ -40,7 +35,7 @@ var Worker = (function(context){
 		// Checking if file exists
 		if(!fso.FileExists(fileName)) throw new Error('File "' + fileName + '" not found');
 		// Exporting function for sending messages
-		this.postMessage = function(data){
+		this.postMessage = function(data){  
 			connector.postMessage(workerConnectorId, JSON.stringify(data));
 		}
 		// Exporting function for terminating worker
