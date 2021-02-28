@@ -22,7 +22,7 @@
 	<![CDATA[
 	// Variables for caching data
 	var	window,	
-		id = Math.random().toString(36).substring(2) + Math.random().toString(36).substring(2),	
+		id = new Date().getTime().toString(36) + Math.random().toString(36).substr(2),	
 		onmessage = function(){},
 		document = new ActiveXObject('htmlfile'),
 		script = document.Script; 
