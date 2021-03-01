@@ -9,7 +9,16 @@
 		// Flag for worker loop
 	var	wait = true,
 		// Object for operations with file system
-		fso = new ActiveXObject('Scripting.FileSystemObject');
+		fso = new ActiveXObject('Scripting.FileSystemObject'),
+		// Canvas image
+		canvasImage = new ActiveXObject("WIA.ImageFile"),
+		// Frame image
+		frameImage = new ActiveXObject("WIA.ImageFile"),
+		// Picture image
+		image = new ActiveXObject("WIA.ImageFile"),
+		// Background image
+		backgroundImage = new ActiveXObject("WIA.ImageFile");
+
 		
 	// Function for adding filters
 	function addFilter(imageProcess,filterName){
@@ -19,6 +28,8 @@
 
 	// Message receive event
 	function onmessage(params){
+		// Image processor
+		var imageProcess = new ActiveXObject("WIA.ImageProcess");		
 		
 		/*
 			canvas (scale)
@@ -26,25 +37,14 @@
 					image  (scale, stamp)
 						frame  (stamp)
 		*/
-		
-		// Canvas image
-		var canvasImage = new ActiveXObject("WIA.ImageFile"),
-			// Frame image
-			frameImage = new ActiveXObject("WIA.ImageFile"),
-			// Picture image
-			image = new ActiveXObject("WIA.ImageFile"),
-			// Background image
-			backgroundImage = new ActiveXObject("WIA.ImageFile"),
-			// Image processor
-			imageProcess = new ActiveXObject("WIA.ImageProcess");		
 
 		// Loading frame info and image
-		var frame = getRandomItem(config.frames)
-		if(!fso.fileExists(frame.image)) throw new Error('Failed to load frame image "' + frame.image + '"')
+		var frame = getRandomItem(config.frames);
+		if(!fso.fileExists(frame.image)) throw new Error('Failed to load frame image "' + frame.image + '"');
 		frameImage.LoadFile(frame.image);
 
 		// Loading canvas image
-		if(!fso.fileExists(config.frame.canvas)) throw new Error('Failed to load canvas image "' + config.frame.canvas + '"')
+		if(!fso.fileExists(config.frame.canvas)) throw new Error('Failed to load canvas image "' + config.frame.canvas + '"');
 		canvasImage.LoadFile(config.frame.canvas);
 
 		// Scalling canvas to frame size
@@ -53,11 +53,11 @@
 			Properties("MaximumHeight")	= frameImage.Height;
 			Properties("PreserveAspectRatio") = false;			
 		}
-		canvasImage = imageProcess.Apply(canvasImage)
+		canvasImage = imageProcess.Apply(canvasImage);
 
 		// Loading frame background image
-		fileName = getRandomItem(config.frame.backgrounds)
-		if(!fso.fileExists(fileName)) throw new Error('Failed to load frame background image "' + fileName + '"')
+		fileName = getRandomItem(config.frame.backgrounds);
+		if(!fso.fileExists(fileName)) throw new Error('Failed to load frame background image "' + fileName + '"');
 		backgroundImage.LoadFile(fileName);
 
 		// Calculating picture inner area
@@ -81,7 +81,7 @@
 		image = imageProcess.Apply(image);
 		
 		// Removing scale filter
-		imageProcess.Filters.Remove(1)
+		imageProcess.Filters.Remove(1);
 		
 		// Stamping scaled background on canvas
 		with(addFilter(imageProcess,"Stamp")){
