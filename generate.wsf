@@ -19,14 +19,18 @@
 		shell = new ActiveXObject('Shell.Application'),
 		// Object for operations with file system
 		fso = new ActiveXObject('Scripting.FileSystemObject'),
-		// Images filtered in gallery
-		folderItems = shell.NameSpace(fso.getAbsolutePathName(config.galleryFolderPath)).Items(),
 		// Counter for taking next image from folder items
 		pictureIndex = 0,
 		// Counter for images already processed
 		imagesProcessed = 0,
 		// Saving start time
 		startTime = new Date();
+	
+	var folderPath = fso.getAbsolutePathName(config.galleryFolderPath);
+	if(!fso.FolderExists(folderPath)) throw new Error('Gallery folder "' + folderPath + '" not found');
+	echo('Reading gallery folder...');
+	// Reading gallery folder
+	folderItems = shell.NameSpace(folderPath).Items();
 
 	// Function for formating timespan
 	function formatTimeSpan(ms){
@@ -46,7 +50,8 @@
 	function echo(text){
 		WSH.StdOut.WriteLine('[' + formatTimeSpan(new Date() - startTime) + '] ' + text);
 	}
-
+	
+	echo('Filtering images in folder...');
 	// Filtering gallery folder
 	folderItems.Filter(SHCONTF_NONFOLDERS,config.imagesFormats);
 
