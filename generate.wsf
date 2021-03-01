@@ -219,7 +219,7 @@
 		
 	if(!fso.FileExists(config.shadowImage)) throw new Error('Failed to load shadow image "' + config.shadowImage + '"');
 	shadowImage.LoadFile(config.shadowImage);
-	// Adding filter for scaling image to destination size of wall width x wall height
+	// Adding filter for scaling image
 
 	with(addFilter(imageProcess,"Scale")){
 		Properties("MaximumWidth")	= config.wall.width - shadowPaddingX;
