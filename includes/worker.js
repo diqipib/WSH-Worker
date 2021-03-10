@@ -36,7 +36,7 @@ var Worker = (function(context){
 		if(!fso.FileExists(fileName)) throw new Error('File "' + fileName + '" not found');
 		// Exporting function for sending messages
 		this.postMessage = function(data){  
-			connector.postMessage(workerConnectorId, JSON.stringify(data));
+			return connector.postMessage(workerConnectorId, JSON.stringify(data));
 		}
 		// Exporting function for terminating worker
 		this.terminate = function(){

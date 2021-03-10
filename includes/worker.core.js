@@ -24,7 +24,7 @@ Tasks:
 		try {
 			if(data) data = JSON.parse(data);
 		} catch(e){
-			throw new Error('Failed to parse data: ' + data)
+			throw new Error('Failed to parse data: ' + data);
 		}
 		// Raising onmessage event
 		if(typeof context.onmessage == 'function') context.onmessage(data);
@@ -32,7 +32,7 @@ Tasks:
 	// External method for sending messages to parent process
 	postMessage = function(data){
 		// Sending message to host connector
-		connector.postMessage(hostConnectorId, JSON.stringify(data));
+		return connector.postMessage(hostConnectorId, JSON.stringify(data))
 	}
 	
 	// Sending back worker connector id
