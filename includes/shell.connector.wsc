@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <component>
-	<?component error="true" debug="false"?>
+	<?component error="false" debug="false"?>
 	<public>
 		<!-- Property for retrieving id -->
 		<property name="id" get />
