@@ -70,8 +70,8 @@ var config = {
 			paddings:{
 				left:		98,
 				top:		91,
-				right:		92,
-				bottom:		92		
+				right:		111,
+				bottom:		106		
 			}
 		}		
 	]
