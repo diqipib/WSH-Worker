@@ -62,6 +62,17 @@ var config = {
 				right:		77,
 				bottom:		70		
 			}
-		}
+		},
+		{
+			// Frame image path
+			image: "includes\\images\\frame4.png",
+			// Padding for positioning picture in frame
+			paddings:{
+				left:		98,
+				top:		91,
+				right:		92,
+				bottom:		92		
+			}
+		}		
 	]
 }

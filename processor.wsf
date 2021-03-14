@@ -74,6 +74,12 @@
 
 		// Loading picture image
 		if(!fso.fileExists(params.filePath)) throw new Error('Failed to load frame image "' + params.filePath + '"')
+		/*
+		if(params.filePath.indexOf('02') > 0 || params.filePath.indexOf('05') > 0){
+			var d = new Date()
+			while(new Date() - d < 10000){}
+		}
+		*/
 		image.LoadFile(params.filePath);
 
 		// Scalling image
@@ -93,7 +99,7 @@
 		// Stamping scaled image on canvas
 		with(addFilter(imageProcess,"Stamp")){
 			Properties("ImageFile") = image;
-			Properties("Left") = frame.paddings.left // + (innerWidth - image.width) / 2;
+			Properties("Left") = frame.paddings.left + (innerWidth - image.width) / 2;
 			Properties("Top") = frame.paddings.top + (innerHeight - image.height) / 2;
 		}	
 
@@ -106,10 +112,6 @@
 			
 		canvasImage = imageProcess.Apply(canvasImage);
 		
-		//fileName = 'test\\' + fso.GetFileName(params.filePath)
-		//if(fso.fileExists(fileName)) fso.DeleteFile(fileName);
-		//canvasImage.SaveFile(fileName);
-		
 		postMessage({
 			status:		1,
 			index:		params.index,
@@ -119,6 +121,7 @@
 			binaryData:	encoder.encode('bin.base64',canvasImage.FileData.BinaryData)
 		})	
 	}
+	
 	// Event of host termination
 	function onhostterminate(){
 		wait = false

@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <component>
-	<?component error="false" debug="false"?>
+	<?component error="true" debug="false"?>
 	<public>
 		<!-- Property for retrieving id -->
 		<property name="id" get />
@@ -21,7 +21,7 @@
 	<script language="JScript">
 	<![CDATA[
 	// Variables for caching data
-	var	window,	
+	var	window,
 		id = new Date().getTime().toString(36) + Math.random().toString(36).substr(2),	
 		onmessage = function(){},
 		document = new ActiveXObject('htmlfile'),
@@ -42,7 +42,8 @@
 		script.setTimeout(function(){
 			try{
 				onmessage(connectorId, data);
-			}catch(e){}
+			} catch(e) {}
+			CollectGarbage();
 		},0);
 	});
 	// The function returns the current connector id
@@ -62,7 +63,10 @@
 			// Check if object has prototype property
 			window.getProperty(connectorId).prototype;
 			return true
-		} catch(e){}
+		} catch(e){
+		} finally {
+			CollectGarbage();
+		}
 		return false
 	}
 	// Function for sending messages between connectors
@@ -71,7 +75,10 @@
 			// Calling function object stored in property
 			window.getProperty(connectorId)(id,data);
 			return true
-		} catch(e){}
+		} catch(e){
+		} finally {
+			CollectGarbage();
+		}
 		return false
 	}
 	]]>
