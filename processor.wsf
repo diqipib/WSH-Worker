@@ -73,13 +73,8 @@
 		backgroundImage = imageProcess.Apply(backgroundImage);
 
 		// Loading picture image
-		if(!fso.fileExists(params.filePath)) throw new Error('Failed to load frame image "' + params.filePath + '"')
-		/*
-		if(params.filePath.indexOf('02') > 0 || params.filePath.indexOf('05') > 0){
-			var d = new Date()
-			while(new Date() - d < 10000){}
-		}
-		*/
+		if(!fso.fileExists(params.filePath)) throw new Error('Failed to load frame image "' + params.filePath + '"');
+		
 		image.LoadFile(params.filePath);
 
 		// Scalling image
@@ -92,8 +87,8 @@
 		// Stamping scaled background on canvas
 		with(addFilter(imageProcess,"Stamp")){
 			Properties("ImageFile") = backgroundImage;
-			Properties("Left") = frame.paddings.left // + (innerWidth - image.width) / 2;
-			Properties("Top") = frame.paddings.top // + (innerHeight - image.height) / 2;
+			Properties("Left") = frame.paddings.left
+			Properties("Top") = frame.paddings.top
 		}	
 
 		// Stamping scaled image on canvas

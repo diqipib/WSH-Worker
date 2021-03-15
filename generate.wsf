@@ -128,7 +128,7 @@
 	for(var i=1;i <= config.workersCount;i++){
 		(function(id){
 			// Creating worker
-			var worker = new Worker('processor.wsf'), timeout;
+			var worker = new Worker('processor.wsf'), startTime;
 			echo('Created worker ' + id);
 			// Attaching event for callback messages
 			worker.onmessage = function(data){
@@ -139,14 +139,14 @@
 						// Creating new vector
 						vector = new ActiveXObject('WIA.Vector');
 
-					echo('Image "' + fso.GetFileName(data.filePath) + '" processed');
+					echo('Worker ' + id + ' processed image "' + fso.GetFileName(data.filePath) + '" in ' + formatTimeSpan(new Date() - startTime) + '. [' + pictureIndex + '/' + folderItems.Count + ']');
 					
 					// Building image from passed data. 
 					vector.BinaryData = encoder.decode('bin.base64',data.binaryData);
 					var pictureImage = vector.imageFile(data.width, data.height);
 					
 					// Creating another one image processor
-					var imageProcess = new ActiveXObject('WIA.ImageProcess')
+					var imageProcess = new ActiveXObject('WIA.ImageProcess');
 
 					// Scaling image to fit frame size
 					with(addFilter(imageProcess,"Scale")){
@@ -170,7 +170,7 @@
 					wallImage = imageProcess.Apply(wallImage);
 
 					// Increasing the counter
-					imagesProcessed++
+					imagesProcessed++;
 					
 					// Checking if the full job is done
 					if(imagesProcessed >= folderItems.Count) {
@@ -180,6 +180,7 @@
 				}
 				// Receiving next task
 				if(pictureIndex < folderItems.Count) {
+					startTime = new Date();
 					var filePath = folderItems.Item(pictureIndex).Path
 					echo('Worker ' + id + ' start processing file "' + fso.GetFileName(filePath) + '"');
 					worker.postMessage({
