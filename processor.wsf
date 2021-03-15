@@ -107,6 +107,7 @@
 			
 		canvasImage = imageProcess.Apply(canvasImage);
 		
+		// Sending back image data
 		postMessage({
 			status:		1,
 			index:		params.index,

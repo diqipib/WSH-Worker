@@ -6,9 +6,9 @@
 	<script language="JScript" src="includes\json2.js"/>
 	<script language="JScript" src="includes\worker.js">
 	<![CDATA[
-	// Checking if script is started not from "generate.cmd"
+	// Checking if script is started not from "main.cmd"
 	if(WScript.FullName.match(/cscript.exe/i) == null) {
-		WSH.Echo('Please, use "generate.cmd" to run script')
+		WSH.Echo('Please, use "main.cmd" to run script')
 		WSH.Quit();
 	}
 		// Flag for searching only files
@@ -245,6 +245,8 @@
 	echo('Complete !');
 
 	shell.shellExecute(fileName);
+	
+	WSH.Quit();
 	]]>
 	</script>
 </job>
