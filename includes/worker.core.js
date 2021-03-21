@@ -20,7 +20,7 @@ Tasks:
 	if(!JSON) throw new Error('JSON object not found');
 	// Receiving host connector id
 	hostConnectorId = vars("host");
-	//WSH.Echo(vars("host") + ':' + vars("id"));
+	// Setting connector id
 	connector.id = vars("id");
 	// External method for sending message to parent process
 	connector.onmessage = function(id,data){

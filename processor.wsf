@@ -12,12 +12,10 @@
 		fso = new ActiveXObject('Scripting.FileSystemObject'),
 		// Canvas image
 		canvasImage = new ActiveXObject("WIA.ImageFile"),
-		// Canvas for drawing 
+		// result image canvas
 		canvas,
 		// Picture image
-		image = new ActiveXObject("WIA.ImageFile"),
-		// Cache variable
-		cache = {};
+		image = new ActiveXObject("WIA.ImageFile");
 
 	// Loading canvas image
 	if(!fso.fileExists(config.frame.canvas)) throw new Error('Failed to load canvas image "' + config.frame.canvas + '"');
@@ -55,14 +53,15 @@
 			Properties("MaximumHeight")	= frame.image.height;
 			Properties("PreserveAspectRatio") = false;			
 		}
-		canvas = imageProcess.Apply(canvasImage);
+		canvasImage = imageProcess.Apply(canvasImage);
 
 		// Loading frame background image
 		var background = getRandomItem(config.frame.backgrounds),
 			// Calculating picture inner area
-			innerWidth	= canvas.width - frame.paddings.left - frame.paddings.right,
-			innerHeight	= canvas.height - frame.paddings.top - frame.paddings.bottom;
+			innerWidth	= canvasImage.width - frame.paddings.left - frame.paddings.right,
+			innerHeight	= canvasImage.height - frame.paddings.top - frame.paddings.bottom;
 
+		// Cheking if background image is already loaded
 		if(!background.image){
 			background.image = new ActiveXObject("WIA.ImageFile");		
 			if(!fso.fileExists(background.path)) throw new Error('Failed to load frame background image "' + background.path + '"');
@@ -116,15 +115,15 @@
 			Properties("PreserveAspectRatio") = true;			
 		}		
 		
-		canvas = imageProcess.Apply(canvas);
+		canvas = imageProcess.Apply(canvasImage);
 		
 		// Sending back image data
 		postMessage({
 			status:		1,
 			index:		params.index,
 			filePath:	params.filePath,
-			width:		canvas.width,
-			height:		canvas.height,
+			width:		canvasImage.width,
+			height:		canvasImage.height,
 			binaryData:	encoder.encode('bin.base64',canvas.FileData.BinaryData)
 		})	
 	}
