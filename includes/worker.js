@@ -8,7 +8,7 @@ Tasks
 var Worker = (function(context){
 	// Object for running processes
 	var wshShell = new ActiveXObject('WScript.Shell'),
-		// Process shell variables
+		// Process shell variables used for current process
 		vars = wshShell.Environment("Process"),
 		// current process connector
 		connector = GetObject("script:file:includes\\shell.connector.wsc"),
@@ -53,7 +53,7 @@ var Worker = (function(context){
 		i++;
 		// Building worker id
 		id = connector.id + ':' + i;
-		// Saving worker id to environment variable 
+		// Saving worker id to environment variable for passing it to worker process
 		vars("id") = id;
 		// Starting script process
 		var wshExec = wshShell.Exec('wscript "' + fileName + '"');

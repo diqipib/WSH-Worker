@@ -9,6 +9,7 @@ Tasks:
 	// Initializing connector
 	var connector = GetObject("script:file:includes\\shell.connector.wsc"),
 		wshShell = new ActiveXObject('WScript.Shell'),
+		// Process shell variables used for current process
 		vars = wshShell.Environment('Process'),
 		// File System Object
 		fso = new ActiveXObject('Scripting.FileSystemObject'),

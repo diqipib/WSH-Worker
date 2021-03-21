@@ -3,7 +3,7 @@
 	<reference object="WIA.ImageProcess"/>
 	<script language="JScript" src="config.js"/>
 	<script language="JScript" src="includes\general.js"/>
-	<script language="JScript" src="includes\json2.js"/>
+	<script language="JScript" src="includes\json2.min.js"/>
 	<script language="JScript" src="includes\worker.core.js">
 	<![CDATA[
 		// Flag for worker loop
@@ -14,8 +14,6 @@
 		canvasImage = new ActiveXObject("WIA.ImageFile"),
 		// Canvas for drawing 
 		canvas,
-		// Frame image
-		//frameImage = new ActiveXObject("WIA.ImageFile"),
 		// Picture image
 		image = new ActiveXObject("WIA.ImageFile"),
 		// Background image
@@ -48,8 +46,6 @@
 		// Loading frame info and image
 		var frame = getRandomItem(config.frames);
 		if(!frame.image){
-		//if(frame != cache.frame){
-			//cache.frame = frame;
 			frame.image = new ActiveXObject("WIA.ImageFile");
 			if(!fso.fileExists(frame.source)) throw new Error('Failed to load frame image "' + frame.source + '"');
 			frame.image.LoadFile(frame.source);
