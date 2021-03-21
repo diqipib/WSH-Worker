@@ -8,17 +8,20 @@ Tasks:
 (function(context){
 	// Initializing connector
 	var connector = GetObject("script:file:includes\\shell.connector.wsc"),
+		wshShell = new ActiveXObject('WScript.Shell'),
+		vars = wshShell.Environment('Process'),
 		// File System Object
 		fso = new ActiveXObject('Scripting.FileSystemObject'),
 		// Creating html document to use "setInterval" function and JSON object
-		document = new ActiveXObject('htmlfile');
-		var window = document.parentWindow;
+		document = new ActiveXObject('htmlfile'),
+		// document parent window object (Used for JS setTimeout / setInterval functions)
+		window = document.parentWindow;
 	// Check if JSON object loaded
 	if(!JSON) throw new Error('JSON object not found');
 	// Receiving host connector id
-	try {
-		var hostConnectorId = fso.GetStandardStream(0).ReadLine();
-	} catch(e){}
+	hostConnectorId = vars("host");
+	//WSH.Echo(vars("host") + ':' + vars("id"));
+	connector.id = vars("id");
 	// External method for sending message to parent process
 	connector.onmessage = function(id,data){
 		try {
@@ -34,12 +37,6 @@ Tasks:
 		// Sending message to host connector
 		return connector.postMessage(hostConnectorId, JSON.stringify(data))
 	}
-	
-	// Sending back worker connector id
-	try {
-		fso.GetStandardStream(1).WriteLine(connector.id);
-	} catch(e){}
-	
 	// Checking if host is still alive
 	var timer = window.setInterval(function(){
 		if(!connector.connect(hostConnectorId)){
