@@ -91,18 +91,16 @@
 	*/
 
 	// Loading background image
-	var fileName = getRandomItem(config.wall.sources);
+	var fileName = getRandomItem(config.wall.images).path;
 	if(!fso.FileExists(fileName)) throw new Error('Failed to load wall image "' + fileName + '"');
-
 	wallImage.LoadFile(fileName)
-
 	// Adding filter for scaling image to destination size of wall width x wall height
 	with(addFilter(imageProcess,"Scale")){
 		Properties("MaximumWidth")	= config.wall.width;
 		Properties("MaximumHeight")	= config.wall.height;
 		Properties("PreserveAspectRatio") = false;			
 	}
-
+	echo('Tiling wall...');
 	// Adding filters for inserting image tiles on the wall
 	for(y = 0; y < config.wall.height / wallImage.Height;y++){
 		for(x = 0; x < config.wall.width / wallImage.Width;x++){
@@ -114,16 +112,14 @@
 			}				
 		}
 	}
-
 	// Applying filters to create background image
 	wallImage = imageProcess.Apply(wallImage);
-
 	// Function for adding filters
 	function addFilter(imageProcess,filterName){
 		imageProcess.Filters.Add(imageProcess.FilterInfos(filterName).FilterID);
 		return imageProcess.Filters(imageProcess.Filters.Count)
 	}
-
+	echo('Loading workers...');
 	// Cycle for creating workers
 	for(var i=1;i <= config.workersCount;i++){
 		(function(id){
@@ -222,8 +218,8 @@
 		shadowPaddingX = config.wall.width / 3,
 		shadowPaddingY = config.wall.height / 3;
 		
-	if(!fso.FileExists(config.shadowImage)) throw new Error('Failed to load shadow image "' + config.shadowImage + '"');
-	shadowImage.LoadFile(config.shadowImage);
+	if(!fso.FileExists(config.shadowImagePath)) throw new Error('Failed to load shadow image "' + config.shadowImagePath + '"');
+	shadowImage.LoadFile(config.shadowImagePath);
 	// Adding filter for scaling image
 
 	with(addFilter(imageProcess,"Scale")){
