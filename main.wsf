@@ -125,9 +125,9 @@
 	var numberOfLogicalProcessors = new Enumerator(GetObject('winmgmts:root\\cimv2').ExecQuery('select NumberOfLogicalProcessors from Win32_ComputerSystem')).item().NumberOfLogicalProcessors
 	// Calculating workers count
 	var workersCount = config.workersCount
-	if(workersCount > numberOfLogicalProcessors) {
+	if(!workersCount || workersCount > numberOfLogicalProcessors) {
 		workersCount = numberOfLogicalProcessors; 
-	} else if(!workersCount || workersCount < 1) {
+	} else if(workersCount < 1) {
 		workersCount = 1;
 	}
 	// Cycle for creating workers
