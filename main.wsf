@@ -233,7 +233,7 @@
 	}	
 	wallImage = imageProcess.Apply(wallImage);
 	// Saving wall image and opening it
-	var fileName = "result1." + wallImage.FileExtension
+	var fileName = "result." + wallImage.FileExtension
 	if(fso.FileExists(fileName)) fso.DeleteFile(fileName,true);
 	wallImage.SaveFile(fileName);			
 

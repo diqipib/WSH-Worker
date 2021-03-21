@@ -2,13 +2,13 @@
 <component>
 	<?component error="false" debug="false"?>
 	<public>
-		<!-- Property for retrieving id -->
+		<!-- Connector id -->
 		<property name="id" get put />
-		<!-- Property for attaching new event handler -->
+		<!-- message event handler -->
 		<property name="onmessage" put >
 			<parameter name="object"/>
 		</property>
-		<!-- Checking if connector with specified id exists -->
+		<!-- Method for checking other connector state -->
 		<method name="connect">
 			<parameter name="id"/>
 		</method>
