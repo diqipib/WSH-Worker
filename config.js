@@ -1,10 +1,10 @@
 var config = {
-	// Workers count
-	workersCount: 4,
+	// Workers count (if is)
+	//workersCount: 1,
 	// Gallery folder path
 	galleryFolderPath:			'images',
 	// Picture formats to filter in folder
-	imagesFormats:				'*.jpg;*.bmp;*.gif;*.png',
+	imagesFormats:				'*.jpg;*.bmp;*.gif;*.png;*.tif',
 	// Wall settings
 	wall: {
 		// Wallpaper image path

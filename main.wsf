@@ -6,6 +6,7 @@
 	<script language="JScript" src="includes\json2.min.js"/>
 	<script language="JScript" src="includes\worker.js">
 	<![CDATA[
+
 	// Checking if script is started not from "main.cmd"
 	if(WScript.FullName.match(/cscript.exe/i) == null) {
 		WSH.Echo('Please, use "main.cmd" to run script')
@@ -120,8 +121,17 @@
 		return imageProcess.Filters(imageProcess.Filters.Count)
 	}
 	echo('Loading workers...');
+	// Getting number of logical processors
+	var numberOfLogicalProcessors = new Enumerator(GetObject('winmgmts:root\\cimv2').ExecQuery('select NumberOfLogicalProcessors from Win32_ComputerSystem')).item().NumberOfLogicalProcessors
+	// Calculating workers count
+	var workersCount = config.workersCount
+	if(workersCount > numberOfLogicalProcessors) {
+		workersCount = numberOfLogicalProcessors; 
+	} else if(!workersCount || workersCount < 1) {
+		workersCount = 1;
+	}
 	// Cycle for creating workers
-	for(var i=1;i <= config.workersCount;i++){
+	for(var i=1;i <= workersCount;i++){
 		(function(id){
 			// Creating worker
 			var worker = new Worker('processor.wsf'), startTime;
@@ -143,19 +153,6 @@
 					
 					// Creating another one image processor
 					var imageProcess = new ActiveXObject('WIA.ImageProcess');
-
-					/*
-					// Scaling image to fit frame size
-					with(addFilter(imageProcess,"Scale")){
-						Properties("MaximumWidth")			= blockWidth;
-						Properties("MaximumHeight")			= blockHeight;
-						Properties("PreserveAspectRatio")	= true;			
-						pictureImage = imageProcess.Apply(pictureImage);
-					}					
-					
-					// Removing scaling filter
-					imageProcess.Filters.Remove(1);
-					*/
 					
 					// Adding filter for stamping images
 					with(addFilter(imageProcess,"Stamp")){
@@ -205,12 +202,10 @@
 			}
 		})(i);
 	}
-
 	// Main loop
 	while(wait){
 		WSH.Sleep(100);
 	}	
-
 	// Reinicializing image process
 	imageProcess = new ActiveXObject('WIA.ImageProcess');
 	// Loading shadow image

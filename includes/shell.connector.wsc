@@ -77,7 +77,11 @@
 			// Check if object has prototype property
 			window.getProperty(connectorId).prototype;
 			return true
-		} catch(e){}
+		} catch(e){
+		} finally {
+			// Calling garbage collector to release object links
+			CollectGarbage();
+		}		
 		return false
 	}
 	// Function for sending messages between connectors
