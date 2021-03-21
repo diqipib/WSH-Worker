@@ -8,11 +8,10 @@ Tasks:
 (function(context){
 	// Initializing connector
 	var connector = GetObject("script:file:includes\\shell.connector.wsc"),
+		// Shell object. Used for reading process environment variables
 		wshShell = new ActiveXObject('WScript.Shell'),
 		// Process shell variables used for current process
 		vars = wshShell.Environment('Process'),
-		// File System Object
-		fso = new ActiveXObject('Scripting.FileSystemObject'),
 		// Creating html document to use "setInterval" function and JSON object
 		document = new ActiveXObject('htmlfile'),
 		// document parent window object (Used for JS setTimeout / setInterval functions)

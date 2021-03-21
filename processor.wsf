@@ -16,8 +16,6 @@
 		canvas,
 		// Picture image
 		image = new ActiveXObject("WIA.ImageFile"),
-		// Background image
-		backgroundImage = new ActiveXObject("WIA.ImageFile"),
 		// Cache variable
 		cache = {};
 
@@ -60,16 +58,15 @@
 		canvas = imageProcess.Apply(canvasImage);
 
 		// Loading frame background image
-		fileName = getRandomItem(config.frame.backgrounds);
-
+		var background = getRandomItem(config.frame.backgrounds),
 			// Calculating picture inner area
-		var innerWidth	= canvas.width - frame.paddings.left - frame.paddings.right,
+			innerWidth	= canvas.width - frame.paddings.left - frame.paddings.right,
 			innerHeight	= canvas.height - frame.paddings.top - frame.paddings.bottom;
 
-		if(fileName != cache.background){
-			cache.background = fileName;
-			if(!fso.fileExists(fileName)) throw new Error('Failed to load frame background image "' + fileName + '"');
-			backgroundImage.LoadFile(fileName);
+		if(!background.image){
+			background.image = new ActiveXObject("WIA.ImageFile");		
+			if(!fso.fileExists(background.path)) throw new Error('Failed to load frame background image "' + background.path + '"');
+			background.image.LoadFile(background.path);
 		}
 
 		// Scalling background
@@ -78,7 +75,7 @@
 			Properties("MaximumHeight")	= innerHeight;
 			Properties("PreserveAspectRatio") = false;			
 		}
-		backgroundImage = imageProcess.Apply(backgroundImage);
+		background.image = imageProcess.Apply(background.image);
 
 		// Loading picture image
 		if(!fso.fileExists(params.filePath)) throw new Error('Failed to load frame image "' + params.filePath + '"');
@@ -94,7 +91,7 @@
 		
 		// Stamping scaled background on canvas
 		with(addFilter(imageProcess,"Stamp")){
-			Properties("ImageFile") = backgroundImage;
+			Properties("ImageFile") = background.image;
 			Properties("Left") = frame.paddings.left
 			Properties("Top") = frame.paddings.top
 		}	

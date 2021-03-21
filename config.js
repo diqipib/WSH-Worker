@@ -2,15 +2,15 @@ var config = {
 	// Workers count
 	workersCount: 4,
 	// Gallery folder path
-	galleryFolderPath:			"images",
+	galleryFolderPath:			'images',
 	// Picture formats to filter in folder
-	imagesFormats:				"*.jpg;*.bmp;*.gif;*.png",
+	imagesFormats:				'*.jpg;*.bmp;*.gif;*.png',
 	// Wall settings
 	wall: {
 		// Wallpaper image path
-		sources:[
-			"includes\\images\\wallpaper1.jpg",
-			"includes\\images\\wallpaper2.jpg"
+		images:[
+			{path:'includes\\images\\wallpaper1.jpg'},
+			{path:'includes\\images\\wallpaper2.jpg'}
 		],
 		// Wall width
 		width:					1920,
@@ -18,21 +18,21 @@ var config = {
 		height:					1080
 	},
 	// shadow image
-	shadowImage: 'includes\\images\\shadow.png',
+	shadowImagePath: 'includes\\images\\shadow.png',
 	// frames settings
 	frame: {
 		// Canvas image
-		canvas: "includes\\images\\canvas.png",
+		canvas: 'includes\\images\\canvas.png',
 		// Background image paths
 		backgrounds:[
-			"includes\\images\\frame_backgroud1.jpg",
-			"includes\\images\\frame_backgroud2.jpg"
+			{path:'includes\\images\\frame_backgroud1.jpg'},
+			{path:'includes\\images\\frame_backgroud2.jpg'}
 		]
 	},
 	frames:[
 		{
 			// Frame image path
-			source: "includes\\images\\frame1.png",
+			source: 'includes\\images\\frame1.png',
 			// Padding for positioning picture in frame
 			paddings:{
 				left:		55,
@@ -43,7 +43,7 @@ var config = {
 		},
 		{
 			// Frame image path
-			source: "includes\\images\\frame2.png",
+			source: 'includes\\images\\frame2.png',
 			// Padding for positioning picture in frame
 			paddings:{
 				left:		54,
@@ -54,7 +54,7 @@ var config = {
 		},
 		{
 			// Frame image path
-			source: "includes\\images\\frame3.png",
+			source: 'includes\\images\\frame3.png',
 			// Padding for positioning picture in frame
 			paddings:{
 				left:		76,
@@ -65,7 +65,7 @@ var config = {
 		},
 		{
 			// Frame image path
-			source: "includes\\images\\frame4.png",
+			source: 'includes\\images\\frame4.png',
 			// Padding for positioning picture in frame
 			paddings:{
 				left:		98,
