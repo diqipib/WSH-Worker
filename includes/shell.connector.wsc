@@ -46,13 +46,12 @@
 			// registering new callback
 			id = value;
 			window.putProperty(id, function(connectorId, data){
-				var timeout = script.setTimeout(function(){
+				script.setTimeout(function(){
 					try{
 						onmessage(connectorId, data);
-						// Calling garbage collector helps to release object links
-						CollectGarbage();
 					} catch(e) {}
-					window.clearTimeout(timeout);
+					// Calling garbage collector helps to release object links
+					CollectGarbage();
 				},0);
 			});
 		} else {

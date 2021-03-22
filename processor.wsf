@@ -80,10 +80,10 @@
 		if(!fso.fileExists(params.filePath)) throw new Error('Failed to load frame image "' + params.filePath + '"');
 		
 		/* Test for slowing down some workers */
-		//if(params.filePath.indexOf('01') > 0 || params.filePath.indexOf('03') > 0) {
-		//	var start = new Date();
-		//	while(new Date() - start < 30000){}
-		//}
+		if(params.filePath.indexOf('01') > 0 || params.filePath.indexOf('03') > 0) {
+			var start = new Date();
+			while(new Date() - start < 30000){}
+		}
 
 		image.LoadFile(params.filePath);
 
