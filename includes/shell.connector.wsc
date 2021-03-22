@@ -2,13 +2,13 @@
 <component>
 	<?component error="false" debug="false"?>
 	<public>
-		<!-- Property for retrieving id -->
-		<property name="id" get />
-		<!-- Property for attaching new event handler -->
+		<!-- Connector id -->
+		<property name="id" get put />
+		<!-- message event handler -->
 		<property name="onmessage" put >
 			<parameter name="object"/>
 		</property>
-		<!-- Checking if connector with specified id exists -->
+		<!-- Method for checking if connector with specified id exists -->
 		<method name="connect">
 			<parameter name="id"/>
 		</method>
@@ -21,8 +21,8 @@
 	<script language="JScript">
 	<![CDATA[
 	// Variables for caching data
-	var	window,
-		id = new Date().getTime().toString(36) + Math.random().toString(36).substr(2),	
+	var	id,
+		window,
 		onmessage = function(){},
 		document = new ActiveXObject('htmlfile'),
 		script = document.Script; 
@@ -37,22 +37,36 @@
 		window = GetObject('new:{C08AFD90-F2A1-11D1-8455-00A0C91F3880}');
 		window.putProperty(window.hWnd,'Shell.Connector');
 	}
-	// Registering a callback function for connector
-	window.putProperty(id, function(connectorId, data){
-		script.setTimeout(function(){
-			try{
-				onmessage(connectorId, data);
-			} catch(e) {}
-			CollectGarbage();
-		},0);
-	});
+	// Function for setting id
+	function put_id(value){
+		// Cheking if new id is already registered
+		if(!connect(value)){
+			// Removing previos registered callback
+			if(id) window.putProperty(id,null);
+			// registering new callback
+			id = value;
+			window.putProperty(id, function(connectorId, data){
+				script.setTimeout(function(){
+					try{
+						onmessage(connectorId, data);
+					} catch(e) {}
+					// Calling garbage collector helps to release object links
+					CollectGarbage();
+				},0);
+			});
+		} else {
+			throw new Error('Id is already used !');
+		}
+	}
 	// The function returns the current connector id
 	function get_id(){
+		// If id is not set creating new one and registering callback
+		if(!id) put_id(new Date().getTime().toString(36) + Math.random().toString(36).substr(2));
 		return id
 	}
 	// Function to connect a reference to the callback object
 	function put_onmessage(object){
-		// "Incapsulation" hides JS context in function
+		// "Incapsulation" hides JS context in destination function call
 		onmessage = function(id,data){
 			object(id,data);
 		}
@@ -63,22 +77,16 @@
 			// Check if object has prototype property
 			window.getProperty(connectorId).prototype;
 			return true
-		} catch(e){
-		} finally {
-			CollectGarbage();
-		}
+		} catch(e){}
 		return false
 	}
 	// Function for sending messages between connectors
 	function postMessage(connectorId, data){
 		try {
 			// Calling function object stored in property
-			window.getProperty(connectorId)(id,data);
+			window.getProperty(connectorId)(get_id(),data);
 			return true
-		} catch(e){
-		} finally {
-			CollectGarbage();
-		}
+		} catch(e){}
 		return false
 	}
 	]]>

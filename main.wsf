@@ -3,12 +3,13 @@
 	<reference object="WIA.ImageProcess"/>
 	<script language="JScript" src="config.js"/>
 	<script language="JScript" src="includes\general.js"/>
-	<script language="JScript" src="includes\json2.js"/>
+	<script language="JScript" src="includes\json2.min.js"/>
 	<script language="JScript" src="includes\worker.js">
 	<![CDATA[
-	// Checking if script is started not from "generate.cmd"
+
+	// Checking if script is started not from "main.cmd"
 	if(WScript.FullName.match(/cscript.exe/i) == null) {
-		WSH.Echo('Please, use "generate.cmd" to run script')
+		WSH.Echo('Please, use "main.cmd" to run script')
 		WSH.Quit();
 	}
 		// Flag for searching only files
@@ -91,18 +92,16 @@
 	*/
 
 	// Loading background image
-	var fileName = getRandomItem(config.wall.images);
+	var fileName = getRandomItem(config.wall.images).path;
 	if(!fso.FileExists(fileName)) throw new Error('Failed to load wall image "' + fileName + '"');
-
 	wallImage.LoadFile(fileName)
-
 	// Adding filter for scaling image to destination size of wall width x wall height
 	with(addFilter(imageProcess,"Scale")){
 		Properties("MaximumWidth")	= config.wall.width;
 		Properties("MaximumHeight")	= config.wall.height;
 		Properties("PreserveAspectRatio") = false;			
 	}
-
+	echo('Tiling wall...');
 	// Adding filters for inserting image tiles on the wall
 	for(y = 0; y < config.wall.height / wallImage.Height;y++){
 		for(x = 0; x < config.wall.width / wallImage.Width;x++){
@@ -114,21 +113,28 @@
 			}				
 		}
 	}
-
 	// Applying filters to create background image
 	wallImage = imageProcess.Apply(wallImage);
-
 	// Function for adding filters
 	function addFilter(imageProcess,filterName){
 		imageProcess.Filters.Add(imageProcess.FilterInfos(filterName).FilterID);
 		return imageProcess.Filters(imageProcess.Filters.Count)
 	}
-
+	echo('Loading workers...');
+	// Getting number of logical processors
+	var numberOfLogicalProcessors = new Enumerator(GetObject('winmgmts:root\\cimv2').ExecQuery('select NumberOfLogicalProcessors from Win32_ComputerSystem')).item().NumberOfLogicalProcessors
+	// Calculating workers count
+	var workersCount = config.workersCount
+	if(!workersCount || workersCount > numberOfLogicalProcessors) {
+		workersCount = numberOfLogicalProcessors; 
+	} else if(workersCount < 1) {
+		workersCount = 1;
+	}
 	// Cycle for creating workers
-	for(var i=1;i <= config.workersCount;i++){
+	for(var i=1;i <= workersCount;i++){
 		(function(id){
 			// Creating worker
-			var worker = new Worker('processor.wsf'), timeout;
+			var worker = new Worker('processor.wsf'), startTime;
 			echo('Created worker ' + id);
 			// Attaching event for callback messages
 			worker.onmessage = function(data){
@@ -139,25 +145,14 @@
 						// Creating new vector
 						vector = new ActiveXObject('WIA.Vector');
 
-					echo('Image "' + fso.GetFileName(data.filePath) + '" processed');
+					echo('Worker ' + id + ' processed image "' + fso.GetFileName(data.filePath) + '" in ' + formatTimeSpan(new Date() - startTime) + '. [' + pictureIndex + '/' + folderItems.Count + ']');
 					
 					// Building image from passed data. 
 					vector.BinaryData = encoder.decode('bin.base64',data.binaryData);
 					var pictureImage = vector.imageFile(data.width, data.height);
 					
 					// Creating another one image processor
-					var imageProcess = new ActiveXObject('WIA.ImageProcess')
-
-					// Scaling image to fit frame size
-					with(addFilter(imageProcess,"Scale")){
-						Properties("MaximumWidth")			= blockWidth;
-						Properties("MaximumHeight")			= blockHeight;
-						Properties("PreserveAspectRatio")	= true;			
-						pictureImage = imageProcess.Apply(pictureImage);
-					}					
-					
-					// Removing scaling filter
-					imageProcess.Filters.Remove(1);
+					var imageProcess = new ActiveXObject('WIA.ImageProcess');
 					
 					// Adding filter for stamping images
 					with(addFilter(imageProcess,"Stamp")){
@@ -170,7 +165,7 @@
 					wallImage = imageProcess.Apply(wallImage);
 
 					// Increasing the counter
-					imagesProcessed++
+					imagesProcessed++;
 					
 					// Checking if the full job is done
 					if(imagesProcessed >= folderItems.Count) {
@@ -180,10 +175,13 @@
 				}
 				// Receiving next task
 				if(pictureIndex < folderItems.Count) {
+					startTime = new Date();
 					var filePath = folderItems.Item(pictureIndex).Path
 					echo('Worker ' + id + ' start processing file "' + fso.GetFileName(filePath) + '"');
 					worker.postMessage({
 						filePath:filePath,
+						width: blockWidth,
+						height: blockHeight,
 						index:pictureIndex
 					});
 					pictureIndex++
@@ -204,12 +202,10 @@
 			}
 		})(i);
 	}
-
 	// Main loop
 	while(wait){
 		WSH.Sleep(100);
 	}	
-
 	// Reinicializing image process
 	imageProcess = new ActiveXObject('WIA.ImageProcess');
 	// Loading shadow image
@@ -217,8 +213,8 @@
 		shadowPaddingX = config.wall.width / 3,
 		shadowPaddingY = config.wall.height / 3;
 		
-	if(!fso.FileExists(config.shadowImage)) throw new Error('Failed to load shadow image "' + config.shadowImage + '"');
-	shadowImage.LoadFile(config.shadowImage);
+	if(!fso.FileExists(config.shadowImagePath)) throw new Error('Failed to load shadow image "' + config.shadowImagePath + '"');
+	shadowImage.LoadFile(config.shadowImagePath);
 	// Adding filter for scaling image
 
 	with(addFilter(imageProcess,"Scale")){
@@ -232,9 +228,10 @@
 	// Stamping scaled image on background image. Result is saved back to image
 	with(addFilter(imageProcess,"Stamp")){
 		Properties("ImageFile") = shadowImage;
-		Properties("Left") = shadowPaddingX
-		Properties("Top") = shadowPaddingY
+		Properties("Left") = shadowPaddingX;
+		Properties("Top") = shadowPaddingY;
 	}	
+
 	wallImage = imageProcess.Apply(wallImage);
 	// Saving wall image and opening it
 	var fileName = "result." + wallImage.FileExtension
@@ -244,6 +241,8 @@
 	echo('Complete !');
 
 	shell.shellExecute(fileName);
+	
+	WSH.Quit();
 	]]>
 	</script>
 </job>
