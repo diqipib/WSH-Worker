@@ -8,7 +8,7 @@
 		<property name="onmessage" put >
 			<parameter name="object"/>
 		</property>
-		<!-- Method for checking other connector state -->
+		<!-- Method for checking if connector with specified id exists -->
 		<method name="connect">
 			<parameter name="id"/>
 		</method>
@@ -49,9 +49,9 @@
 				script.setTimeout(function(){
 					try{
 						onmessage(connectorId, data);
+						// Calling garbage collector helps to release object links
+						CollectGarbage();
 					} catch(e) {}
-					// Calling garbage collector to release object links
-					CollectGarbage();
 				},0);
 			});
 		} else {
@@ -66,7 +66,7 @@
 	}
 	// Function to connect a reference to the callback object
 	function put_onmessage(object){
-		// "Incapsulation" hides JS context in function
+		// "Incapsulation" hides JS context in destination function call
 		onmessage = function(id,data){
 			object(id,data);
 		}
@@ -77,11 +77,7 @@
 			// Check if object has prototype property
 			window.getProperty(connectorId).prototype;
 			return true
-		} catch(e){
-		} finally {
-			// Calling garbage collector to release object links
-			CollectGarbage();
-		}		
+		} catch(e){}
 		return false
 	}
 	// Function for sending messages between connectors
@@ -90,11 +86,7 @@
 			// Calling function object stored in property
 			window.getProperty(connectorId)(get_id(),data);
 			return true
-		} catch(e){
-		} finally {
-			// Calling garbage collector to release object links
-			CollectGarbage();
-		}
+		} catch(e){}
 		return false
 	}
 	]]>

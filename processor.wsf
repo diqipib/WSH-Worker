@@ -79,6 +79,10 @@
 		// Loading picture image
 		if(!fso.fileExists(params.filePath)) throw new Error('Failed to load frame image "' + params.filePath + '"');
 		
+		//if(params.filePath.indexOf('01') > 0 || params.filePath.indexOf('03') > 0) {
+		//	var start = new Date();
+		//	while(new Date() - start < 30000){}
+		//}
 		image.LoadFile(params.filePath);
 
 		// Scalling image
