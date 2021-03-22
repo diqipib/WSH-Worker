@@ -1,9 +1,5 @@
 /*
 Workers factory script
-Tasks
-1) Allows to create multiple workers
-2) Send them messages using method "postMessage"
-3) Catches events with handler "onmessage"
 */
 var Worker = (function(context){
 	// Object for running processes

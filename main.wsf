@@ -228,9 +228,10 @@
 	// Stamping scaled image on background image. Result is saved back to image
 	with(addFilter(imageProcess,"Stamp")){
 		Properties("ImageFile") = shadowImage;
-		Properties("Left") = shadowPaddingX
-		Properties("Top") = shadowPaddingY
+		Properties("Left") = shadowPaddingX;
+		Properties("Top") = shadowPaddingY;
 	}	
+
 	wallImage = imageProcess.Apply(wallImage);
 	// Saving wall image and opening it
 	var fileName = "result." + wallImage.FileExtension

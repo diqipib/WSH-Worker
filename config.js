@@ -1,6 +1,6 @@
 var config = {
-	// Workers count (if value is not set, number of logical processors is used.)
-	// workersCount: 4,
+	// Workers count (if value is not set or values is greater than number of logical processors than number of logical processors is used.)
+	workersCount: 4,
 	// Gallery folder path
 	galleryFolderPath:			'images',
 	// Picture formats to filter in folder
