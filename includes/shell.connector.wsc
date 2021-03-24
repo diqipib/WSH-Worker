@@ -25,18 +25,24 @@
 		window,
 		onmessage = function(){},
 		document = new ActiveXObject('htmlfile'),
-		script = document.Script; 
-	// Search for a window with a property containing Shell.Explorer. 
+		script = document.Script;
+	// Searching window with a property containing "Shell.Connector". 
 	for(var e = new Enumerator(new ActiveXObject('Shell.Application').Windows());!e.atEnd();e.moveNext()){
 		window = e.item(); 
 		if(window.getProperty(window.hWnd) == 'Shell.Connector') break
 	}
 	// If the window is not found a new one is created
-	if(!window){
-		// Creating new window
-		window = GetObject('new:{C08AFD90-F2A1-11D1-8455-00A0C91F3880}');
-		window.putProperty(window.hWnd,'Shell.Connector');
+	var now = new Date();
+	while(!window){
+		// Fix for error when explorer.exe is killed
+		try {
+			window = GetObject('new:{C08AFD90-F2A1-11D1-8455-00A0C91F3880}');
+		} catch(e){
+			if(new Date() - now > 3000) throw new Error('Failed to create shell window');
+		}
 	}
+	// Registering window
+	window.putProperty(window.hWnd,'Shell.Connector');
 	// Function for setting id
 	function put_id(value){
 		// Cheking if new id is already registered

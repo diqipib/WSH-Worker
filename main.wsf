@@ -101,6 +101,7 @@
 		Properties("MaximumHeight")	= config.wall.height;
 		Properties("PreserveAspectRatio") = false;			
 	}
+
 	echo('Tiling wall...');
 	// Adding filters for inserting image tiles on the wall
 	for(y = 0; y < config.wall.height / wallImage.Height;y++){
@@ -115,6 +116,7 @@
 	}
 	// Applying filters to create background image
 	wallImage = imageProcess.Apply(wallImage);
+	echo('Tiling wall complete...');
 	// Function for adding filters
 	function addFilter(imageProcess,filterName){
 		imageProcess.Filters.Add(imageProcess.FilterInfos(filterName).FilterID);
@@ -240,7 +242,8 @@
 
 	echo('Complete !');
 
-	shell.shellExecute(fileName);
+	new ActiveXObject('WScript.Shell').Run(fileName,1,false);
+	// shell.shellExecute(fileName);
 	
 	WSH.Quit();
 	]]>
